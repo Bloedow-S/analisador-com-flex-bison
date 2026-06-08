@@ -1,0 +1,7 @@
+lex.yy.c
+elgol
+*.exe
+lexico/analisador
+sintatico/analisador
+*.tab.c
+*.tab.h
