@@ -4,6 +4,8 @@
 extern int yylineno;
 int yyerror(char *s);
 int yylex();
+
+int has_error = 0;
 %}
 
 %token ID ID_FUNC NUM ELGIO
@@ -12,11 +14,10 @@ int yylex();
 %token INICIO FIM PONTO ATRIBUICAO
 %token MAIS MENOS VEZES DIVISAO MODULO
 %token MAIOR MENOR IGUAL DIFERENTE MIGUAL MIGUAL_UP
-%token ABRE_PAR FECHA_PAR VIRGULA ERRO_LEXICO
+%token ABRE_PAR FECHA_PAR VIRGULA
 
 %%
 
-/* Ponto de entrada — expandido pelo Aluno 03 */
 programa
     : lista_comandos
     ;
@@ -35,7 +36,6 @@ bloco
     : INICIO PONTO lista_comandos_opt FIM PONTO
     ;
 
-/* Comandos do Aluno 02 (Expandido com regras do Aluno 03) */
 comando
     : atribuicao_normal
     | atribuicao_elgio
@@ -46,10 +46,11 @@ comando
     | definicao_funcao
     | condicional_se
     | bloco
+    | error PONTO { yyerrok; }
     ;
 
 /* ------------------------------------------------------------------ */
-/* Expansao Aluno 03: Declaracao de variaveis e funcoes               */
+/* Declaracao de variaveis e funcoes                                   */
 /* ------------------------------------------------------------------ */
 
 declaracao_var
@@ -119,6 +120,7 @@ atribuicao_normal
     ;
 
 
+/* elgio: sem chamada de funcao como operando */
 operando_elgio
     : ID
     | NUM
@@ -144,6 +146,7 @@ operador_rel
     | MIGUAL_UP
     ;
 
+/* expressao logica: exatamente dois operandos, sem funcoes */
 operando_rel
     : ID
     | NUM
@@ -171,9 +174,11 @@ para
 
 int yyerror(char *s) {
     printf("Erro sintatico na linha %d\n", yylineno);
+    has_error = 1;
     return 1;
 }
 
 int main(void) {
-    return yyparse();
+    yyparse();
+    return has_error;
 }
