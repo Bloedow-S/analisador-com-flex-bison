@@ -2,6 +2,8 @@
 #include "sintatico.tab.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+extern int has_error;
 %}
 
 %option noyywrap
@@ -16,7 +18,7 @@ NUMERO_INTEIRO  {DIGITO_NAO_ZERO}{DIGITO}*
 LETRA_MAI       [A-Z]
 LETRA_MIN       [a-z]
 LETRA           [A-Za-z]
-ID_VALIDO       {LETRA_MAI}{LETRA}{LETRA}+{LETRA_MIN}
+ID_VALIDO       {LETRA_MAI}{LETRA}*{LETRA_MIN}{LETRA}*
 FUNC_VALIDA     _{ID_VALIDO}
 
 %%
@@ -69,36 +71,44 @@ FUNC_VALIDA     _{ID_VALIDO}
 }
 
 
-{LETRA_MAI}{LETRA}[A-Za-z0-9_]+ {
-    printf("Erro lexico na linha %d: %s\n", yylineno, yytext);
-    return ERRO_LEXICO;
-}
-
-
-{LETRA_MAI} {
-    printf("Erro lexico na linha %d: %s\n", yylineno, yytext);
-    return ERRO_LEXICO;
-}
-
-
-_{LETRA}{LETRA}[A-Za-z0-9_]* {
-    printf("Erro lexico na linha %d: %s\n", yylineno, yytext);
-    return ERRO_LEXICO;
-}
-
-
 [ \t\r\n]+  { /* ignora */ }
 
 "*"[^\n]* { /* comentario de linha - ignora */ }
 
-[a-z][a-zA-Z0-9_]* {
-                printf("Erro lexico na linha %d: %s\n", yylineno, yytext);
-                return ERRO_LEXICO;
-            }
 
-.           {
-                printf("Erro lexico na linha %d: %s\n", yylineno, yytext);
-                return ERRO_LEXICO;
-            }
+{LETRA_MAI}{LETRA}*[0-9_][A-Za-z0-9_]* {
+    printf("Erro lexico na linha %d: '%s'\n", yylineno, yytext);
+    has_error = 1;
+}
+
+_{LETRA}[A-Za-z0-9_]*[0-9_][A-Za-z0-9_]* {
+    printf("Erro lexico na linha %d: '%s'\n", yylineno, yytext);
+    has_error = 1;
+}
+
+_{LETRA_MIN}[A-Za-z0-9_]* {
+    printf("Erro lexico na linha %d: '%s'\n", yylineno, yytext);
+    has_error = 1;
+}
+
+_{LETRA_MAI}{LETRA_MAI}+[A-Za-z0-9_]* {
+    printf("Erro lexico na linha %d: '%s'\n", yylineno, yytext);
+    has_error = 1;
+}
+
+{LETRA_MAI} {
+    printf("Erro lexico na linha %d: '%s'\n", yylineno, yytext);
+    has_error = 1;
+}
+
+[a-z][a-zA-Z0-9_]* {
+    printf("Erro lexico na linha %d: '%s'\n", yylineno, yytext);
+    has_error = 1;
+}
+
+. {
+    printf("Erro lexico na linha %d: '%s'\n", yylineno, yytext);
+    has_error = 1;
+}
 
 %%
