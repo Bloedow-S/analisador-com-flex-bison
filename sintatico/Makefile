@@ -1,11 +1,11 @@
 all:
-	# 1. Roda o Bison no arquivo .y para gerar o sintatico.tab.c e sintatico.tab.h
+	# Roda o Bison no arquivo .y para gerar o sintatico.tab.c e sintatico.tab.h
 	bison -d sintatico.y
 
-	# 2. Roda o Flex no seu analisador.l para gerar o lex.yy.c
+	# Roda o Flex no seu analisador.l para gerar o lex.yy.c
 	flex analisador.l
 
-	# 3. Compila os dois arquivos .c juntos em um único executável chamado 'analisador'
+	# Compila os dois arquivos .c juntos em um único executável chamado 'analisador'
 	gcc sintatico.tab.c lex.yy.c -o analisador
 
 clean:
